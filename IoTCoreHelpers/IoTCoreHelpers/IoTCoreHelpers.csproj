@@ -108,10 +108,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers.cs" />
-    <Compile Include="PWM.cs" />
-    <Compile Include="ServoMotor.cs" />
-    <Compile Include="ServoMotorDefinition.cs" />
+    <Compile Include="Movement\PWM.cs" />
+    <Compile Include="Movement\ServoMotor.cs" />
+    <Compile Include="Movement\ServoMotorDefinition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Web\Param.cs" />
     <EmbeddedResource Include="Properties\IoTCoreHelpers.rd.xml" />
   </ItemGroup>
   <ItemGroup>
