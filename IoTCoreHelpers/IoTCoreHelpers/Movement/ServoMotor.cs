@@ -10,7 +10,7 @@ using Windows.Foundation;
 
 namespace IoTCoreHelpers
 {
-    class ServoMotor
+    public class ServoMotor
     {
         private GpioPin servoPin;
         private double PulseFrequency = 20;

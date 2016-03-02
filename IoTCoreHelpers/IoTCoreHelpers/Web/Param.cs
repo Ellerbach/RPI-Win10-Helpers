@@ -86,11 +86,11 @@ namespace IoTCoreHelpers
             return retval;
         }
         /// <summary>
-        /// Search for a specific parameter, all lowercase and return the value as a boolean
+        /// Search for a specific parameter, all lowercase and return the value as a byte
         /// </summary>
         /// <param name="Params">a list of Param</param>
         /// <param name="NameToSeach">a Name value to search</param>
-        /// <returns></returns>
+        /// <returns>default return in MaxValue</returns>
         public static byte CheckConvertByte(List<Param> Params, string NameToSeach)
         {
             Param Paramret = null;
@@ -99,6 +99,70 @@ namespace IoTCoreHelpers
             try
             {
                 retval = Convert.ToByte(Paramret.Value);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Exception converting parameter: {ex.Message}");
+            }
+            return retval;
+        }
+        /// <summary>
+        /// Search for a specific parameter, all lowercase and return the value as a byte
+        /// </summary>
+        /// <param name="Params">a list of Param</param>
+        /// <param name="NameToSeach">a Name value to search</param>
+        /// <returns>default return in MaxValue</returns>
+        public static int CheckConvertInt32(List<Param> Params, string NameToSeach)
+        {
+            Param Paramret = null;
+            int retval = int.MaxValue;
+            Paramret = Params.Find(p => p.Name.ToLower().IndexOf(NameToSeach) == 0);
+            try
+            {
+                retval = Convert.ToInt32(Paramret.Value);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Exception converting parameter: {ex.Message}");
+            }
+            return retval;
+        }
+        /// <summary>
+        /// Search for a specific parameter, all lowercase and return the value as a byte
+        /// </summary>
+        /// <param name="Params">a list of Param</param>
+        /// <param name="NameToSeach">a Name value to search</param>
+        /// <returns>default return in MaxValue</returns>
+        public static uint CheckConvertUInt16(List<Param> Params, string NameToSeach)
+        {
+            Param Paramret = null;
+            uint retval = uint.MaxValue;
+            Paramret = Params.Find(p => p.Name.ToLower().IndexOf(NameToSeach) == 0);
+            try
+            {
+                retval = Convert.ToUInt16(Paramret.Value);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Exception converting parameter: {ex.Message}");
+            }
+            return retval;
+        }
+
+        /// <summary>
+        /// Search for a specific parameter, all lowercase and return the value as a string
+        /// </summary>
+        /// <param name="Params">a list of Param</param>
+        /// <param name="NameToSeach">a Name value to search</param>
+        /// <returns>default return empty string</returns>
+        public static string CheckConvertString(List<Param> Params, string NameToSeach)
+        {
+            Param Paramret = null;
+            string retval = "";
+            Paramret = Params.Find(p => p.Name.ToLower().IndexOf(NameToSeach) == 0);
+            try
+            {
+                retval = Paramret.Value;
             }
             catch (Exception ex)
             {
