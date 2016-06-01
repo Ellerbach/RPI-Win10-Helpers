@@ -10,12 +10,15 @@ using Windows.Foundation;
 
 namespace IoTCoreHelpers
 {
-    public class ServoMotor
+    public class ServoMotor : IDisposable
     {
         private GpioPin servoPin;
         private double PulseFrequency = 20;
 
         double currentPulseWidth = 0;
+        //static storage of servomotors
+        static List<ServoMotor> myServo = new List<ServoMotor>();
+        static bool isThreadRunning = false;
 
         private float angle;
         /// <summary>
@@ -26,13 +29,16 @@ namespace IoTCoreHelpers
         /// The duration per angle's degree.
         /// </summary>
         private double rangePerDegree;
-        private Helpers.Waiting myCounter;
+        static private Helpers.Waiting myCounter;
         private CancellationTokenSource tockenAgle;
 
         public ServoMotor(int PinNumber, ServoMotorDefinition definition)
         {
+            //is it the first Servo?
+            myServo.Add(this);
             tockenAgle = new CancellationTokenSource();
-            myCounter = new Helpers.Waiting();
+            if (myCounter == null)
+                myCounter = new Helpers.Waiting();
             this.definition = definition;
             PulseFrequency = definition.Period / 1000.0;
             UpdateRange();
@@ -47,28 +53,32 @@ namespace IoTCoreHelpers
             servoPin.SetDriveMode(GpioPinDriveMode.Output);
             Debug.WriteLine("GPIO initialized in ServoMotor");
             //You do not need to await this, as your goal is to have this run for the lifetime of the application
-
-            Windows.System.Threading.ThreadPool.RunAsync(this.MotorThread, Windows.System.Threading.WorkItemPriority.High);
+            if (!isThreadRunning)
+                Windows.System.Threading.ThreadPool.RunAsync(MotorThread, Windows.System.Threading.WorkItemPriority.High);
+            isThreadRunning = true;
             Debug.WriteLine("MotorThread initialized in ServoMotor");
         }
 
-        private void MotorThread(IAsyncAction action)
+        static private void MotorThread(IAsyncAction action)
         {
             Debug.WriteLine("MotorThread lunched ServoMotor");
             while (true)
             {
-                //Write the pin high for the appropriate length of time
-                if (currentPulseWidth != 0)
+                foreach (var serv in myServo)
                 {
-                    if (servoPin != null)
-                        servoPin.Write(GpioPinValue.High);
+                    //Write the pin high for the appropriate length of time
+                    if (serv.currentPulseWidth != 0)
+                    {
+                        if (serv.servoPin != null)
+                            serv.servoPin.Write(GpioPinValue.High);
+                    }
+                    //Use the wait helper method to wait for the length of the pulse
+                    myCounter.Wait(serv.currentPulseWidth);
+                    //The pulse if over and so set the pin to low and then wait until it's time for the next pulse
+                    if (serv.servoPin != null)
+                        serv.servoPin.Write(GpioPinValue.Low);
+                    myCounter.Wait(serv.PulseFrequency - serv.currentPulseWidth);
                 }
-                //Use the wait helper method to wait for the length of the pulse
-                myCounter.Wait(currentPulseWidth);
-                //The pulse if over and so set the pin to low and then wait until it's time for the next pulse
-                if (servoPin != null)
-                    servoPin.Write(GpioPinValue.Low);
-                myCounter.Wait(PulseFrequency - currentPulseWidth);
             }
         }
 
@@ -112,7 +122,7 @@ namespace IoTCoreHelpers
         {
             if (definition.IsMovingPeriod != 0)
             {
-                if(tockenAgle!=null)
+                if (tockenAgle != null)
                     if (!tockenAgle.IsCancellationRequested)
                     {
                         tockenAgle.Cancel();
@@ -135,11 +145,11 @@ namespace IoTCoreHelpers
                 {
                     var t = Task.Run(async delegate
                     {
-                        if(tockenAgle==null)
+                        if (tockenAgle == null)
                             tockenAgle = new CancellationTokenSource();
                         await Task.Delay((int)definition.IsMovingPeriod, tockenAgle.Token);
                         currentPulseWidth = 0;
-                        if(tockenAgle!=null)
+                        if (tockenAgle != null)
                         {
                             tockenAgle.Dispose();
                             tockenAgle = null;
@@ -166,6 +176,11 @@ namespace IoTCoreHelpers
         {
             if (definition.AngleMax != 0)
                 rangePerDegree = (definition.MaximumDuration - definition.MinimumDuration) / definition.AngleMax;
+        }
+
+        public void Dispose()
+        {
+            myServo.Remove(this);
         }
 
         /// <summary>
@@ -213,5 +228,7 @@ namespace IoTCoreHelpers
                     Rotate();
             }
         }
+
+
     }
 }

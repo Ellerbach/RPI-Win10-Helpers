@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace IoTCoreHelpers
 {
-    class Helpers
+    public class Helpers
     {
 
         public class Waiting
