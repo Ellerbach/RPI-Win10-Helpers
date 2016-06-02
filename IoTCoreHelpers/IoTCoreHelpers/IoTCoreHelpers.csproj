@@ -107,6 +107,7 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Communication\HX711.cs" />
     <Compile Include="Communication\OneWire.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="Movement\PWM.cs" />
