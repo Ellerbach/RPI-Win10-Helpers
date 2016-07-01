@@ -22,15 +22,20 @@ namespace IoTCoreHelpers.Communication
 
         //DOUT
         private GpioPin SerialDataOutput;
+        private int retry;
+        private bool isOn = false;
 
-        public HX711(GpioPin powerDownAndSerialClockInput, GpioPin serialDataOutput)
+        public HX711(GpioPin powerDownAndSerialClockInput, GpioPin serialDataOutput, int retrymillisec)
         {
             PowerDownAndSerialClockInput = powerDownAndSerialClockInput;
             powerDownAndSerialClockInput.SetDriveMode(GpioPinDriveMode.Output);
 
             SerialDataOutput = serialDataOutput;
             SerialDataOutput.SetDriveMode(GpioPinDriveMode.Input);
+            retry = retrymillisec;
         }
+        public HX711(GpioPin powerDownAndSerialClockInput, GpioPin serialDataOutput) : this(powerDownAndSerialClockInput, serialDataOutput, 10000)
+        { }
 
         #endregion
 
@@ -49,9 +54,14 @@ namespace IoTCoreHelpers.Communication
         //shifted out.
         public int Read()
         {
+            if (!isOn)
+                PowerOn();
+            DateTime dtinit = DateTime.Now;
+            dtinit = dtinit.AddMilliseconds(retry);
             while (!IsReady())
             {
-
+                if (dtinit.CompareTo(DateTime.Now) < 0)
+                    return int.MaxValue;
             }
             string binaryData = "";
             for (int pulses = 0; pulses < 25 + (int)InputAndGainSelection; pulses++)
@@ -111,15 +121,17 @@ namespace IoTCoreHelpers.Communication
         {
             PowerDownAndSerialClockInput.Write(GpioPinValue.Low);
             PowerDownAndSerialClockInput.Write(GpioPinValue.High);
+            isOn = false;
             //wait 60 microseconds
         }
 
         //When PD_SCK returns to low,
         //chip will reset and enter normal operation mode
         public void PowerOn()
-        {
+        {           
             PowerDownAndSerialClockInput.Write(GpioPinValue.Low);
             _InputAndGainSelection = InputAndGainOption.A128;
+            isOn = true;
         }
         //After a reset or power-down event, input
         //selection is default to Channel A with a gain of 128. 

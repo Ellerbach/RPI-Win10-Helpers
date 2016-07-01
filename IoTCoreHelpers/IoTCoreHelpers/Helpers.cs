@@ -45,7 +45,7 @@ namespace IoTCoreHelpers
             return outbuff;
         }
 
-        private async static Task<string> GetFilePathAsync(string filename, StorageFolder localFolder)
+        public async static Task<string> GetFilePathAsync(string filename, StorageFolder localFolder)
         {
             var files = await localFolder.GetFilesAsync();
             StorageFile file = files.FirstOrDefault(x => x.Name == filename);

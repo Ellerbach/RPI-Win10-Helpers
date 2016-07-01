@@ -113,6 +113,8 @@
     <Compile Include="Movement\PWM.cs" />
     <Compile Include="Movement\ServoMotor.cs" />
     <Compile Include="Movement\ServoMotorDefinition.cs" />
+    <Compile Include="Networking\wifi.cs" />
+    <Compile Include="Networking\WifiConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sensors\DS18B201.cs" />
     <Compile Include="Web\Param.cs" />
